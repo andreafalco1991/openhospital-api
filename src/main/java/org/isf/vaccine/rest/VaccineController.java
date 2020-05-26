@@ -33,13 +33,15 @@ import io.swagger.annotations.Authorization;
 @Api(value = "/vaccines", produces = MediaType.APPLICATION_JSON_VALUE, authorizations = {@Authorization(value = "basicAuth")})
 public class VaccineController {
 
+    protected static final String DEFAULT_PAGE_SIZE = "80";
+
     private final Logger logger = LoggerFactory.getLogger(VaccineController.class);
 
     @Autowired
     protected VaccineBrowserManager vaccineManager;
     
     @Autowired
-    protected VaccineMapper mapper;
+    protected VaccineMapper vaccineMapper;
 
     public VaccineController(VaccineBrowserManager vaccineManager) {
         this.vaccineManager = vaccineManager;
@@ -55,7 +57,7 @@ public class VaccineController {
     public ResponseEntity<List<VaccineDTO>> getVaccines() throws OHServiceException {
         logger.info("Get vaccines");
         ArrayList<Vaccine> vaccines = vaccineManager.getVaccine();
-        List<VaccineDTO> listVaccines = mapper.map2DTOList(vaccines);
+        List<VaccineDTO> listVaccines = vaccineMapper.map2DTOList(vaccines);
         if (listVaccines.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(listVaccines);
         } else {
@@ -74,7 +76,7 @@ public class VaccineController {
     public ResponseEntity<List<VaccineDTO>> getVaccinesByVaccineTypeCode(@PathVariable String vaccineTypeCode) throws OHServiceException {
         logger.info("Get vaccine by code:" + vaccineTypeCode);
         ArrayList<Vaccine> vaccines = vaccineManager.getVaccine(vaccineTypeCode);
-        List<VaccineDTO> listVaccines = mapper.map2DTOList(vaccines);
+        List<VaccineDTO> listVaccines = vaccineMapper.map2DTOList(vaccines);
         if (listVaccines.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(listVaccines);
         } else {
@@ -94,7 +96,7 @@ public class VaccineController {
         logger.info("Create vaccine: " + newVaccine.toString());
         boolean isCreated;
         try {
-             isCreated = vaccineManager.newVaccine(mapper.map2Model(newVaccine));
+             isCreated = vaccineManager.newVaccine(vaccineMapper.map2Model(newVaccine));
         } catch (OHDataIntegrityViolationException e) {
             throw new OHAPIException(new OHExceptionMessage(null, "Vaccine type already present!", OHSeverityLevel.ERROR));
         }
@@ -105,7 +107,8 @@ public class VaccineController {
     }
 
     /**
-     * Update vaccine
+     * Update vaccine.
+     * This function is equals to newVaccine.
      *
      * @param updateVaccine
      * @return an error message if there are some problem, ok otherwise
@@ -114,7 +117,7 @@ public class VaccineController {
     @PutMapping(value = "/vaccines/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateVaccine(@RequestBody VaccineDTO updateVaccine) throws OHServiceException {
         logger.info("Update vaccine: " + updateVaccine.toString());
-        boolean isUpdated = vaccineManager.updateVaccine(mapper.map2Model(updateVaccine));
+        boolean isUpdated = vaccineManager.updateVaccine(vaccineMapper.map2Model(updateVaccine));
         if (!isUpdated) {
             throw new OHAPIException(new OHExceptionMessage(null, "Vaccine is not updated!", OHSeverityLevel.ERROR));
         }
@@ -129,10 +132,10 @@ public class VaccineController {
      * @return an error message if there are some problem, ok otherwise
      * @throws OHServiceException
      */
-    @DeleteMapping(value = "/vaccines/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/vaccines", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity deleteVaccine(@RequestBody VaccineDTO vaccineToDelete) throws OHServiceException {
         logger.info("Delete vaccine: " + vaccineToDelete.toString());
-        boolean isDeleted = vaccineManager.deleteVaccine(mapper.map2Model(vaccineToDelete));
+        boolean isDeleted = vaccineManager.deleteVaccine(vaccineMapper.map2Model(vaccineToDelete));
         if (!isDeleted) {
             throw new OHAPIException(new OHExceptionMessage(null, "Vaccine is not deleted!", OHSeverityLevel.ERROR));
         }

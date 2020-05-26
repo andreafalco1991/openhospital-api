@@ -37,7 +37,7 @@ public class VisitsController {
     protected VisitManager visitManager;
     
     @Autowired
-    protected VisitMapper mapper;
+    protected VisitMapper visitMapper;
 
     public VisitsController(VisitManager visitManager) {
         this.visitManager = visitManager;
@@ -54,7 +54,7 @@ public class VisitsController {
     public ResponseEntity<List<VisitDTO>> getVisit(@PathVariable int patID) throws OHServiceException {
         logger.info("Get visit related to patId: " + patID);
         ArrayList<Visit> visit = visitManager.getVisits(patID);
-        List<VisitDTO> listVisit = mapper.map2DTOList(visit);
+        List<VisitDTO> listVisit = visitMapper.map2DTOList(visit);
         if (listVisit.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } else {
@@ -72,7 +72,7 @@ public class VisitsController {
     @PostMapping(value = "/visit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> newVisit(@RequestBody VisitDTO newVisit) throws OHServiceException {
         logger.info("Create Visit: " + newVisit);
-        int visitId = visitManager.newVisit(mapper.map2Model(newVisit));
+        int visitId = visitManager.newVisit(visitMapper.map2Model(newVisit));
         return ResponseEntity.status(HttpStatus.CREATED).body(newVisit.getVisitID());
     }
 
@@ -86,7 +86,7 @@ public class VisitsController {
     @PostMapping(value = "/visits", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity newVisits(@RequestBody List<VisitDTO> newVisits) throws OHServiceException {
         logger.info("Create Visits");
-        ArrayList<Visit> listVisits = (ArrayList<Visit>) mapper.map2ModelList(newVisits);
+        ArrayList<Visit> listVisits = (ArrayList<Visit>) visitMapper.map2ModelList(newVisits);
         boolean areCreated = visitManager.newVisits(listVisits);
         if (!areCreated) {
             throw new OHAPIException(new OHExceptionMessage(null, "Visits are not created!", OHSeverityLevel.ERROR));

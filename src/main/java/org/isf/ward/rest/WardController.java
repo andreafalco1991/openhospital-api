@@ -38,7 +38,7 @@ public class WardController {
     protected WardBrowserManager wardManager;
     
     @Autowired
-    protected WardMapper mapper;
+    protected WardMapper wardMapper;
 
     public WardController(WardBrowserManager wardManager) {
         this.wardManager = wardManager;
@@ -54,7 +54,7 @@ public class WardController {
     public ResponseEntity<List<WardDTO>> getWards() throws OHServiceException {
         logger.info("Get wards");
         ArrayList<Ward> wards = wardManager.getWards();
-        List<WardDTO> listWard = mapper.map2DTOList(wards);
+        List<WardDTO> listWard = wardMapper.map2DTOList(wards);
         if (listWard.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } else {
@@ -72,7 +72,7 @@ public class WardController {
     public ResponseEntity<List<WardDTO>> getWardsNoMaternity() throws OHServiceException {
         logger.info("Get wards no maternity");
         ArrayList<Ward> wards = wardManager.getWardsNoMaternity();
-        List<WardDTO> listWard = mapper.map2DTOList(wards);
+        List<WardDTO> listWard = wardMapper.map2DTOList(wards);
         if (listWard.size() == 0) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         } else {
@@ -90,7 +90,7 @@ public class WardController {
     @GetMapping(value = "/wards/occupation", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> getCurrentOccupation(@RequestBody WardDTO wardDto) throws OHServiceException {
         logger.info("Get current occupation ward code: " + wardDto.getCode());
-        Ward ward = mapper.map2Model(wardDto);
+        Ward ward = wardMapper.map2Model(wardDto);
         Integer numberOfPatients = wardManager.getCurrentOccupation(ward);
         if (numberOfPatients == -1) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -109,7 +109,7 @@ public class WardController {
     @PostMapping(value = "/wards", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity newWard(@RequestBody WardDTO newWard) throws OHServiceException {
         logger.info("Create Ward: " + newWard);
-        boolean isCreated = wardManager.newWard(mapper.map2Model(newWard));
+        boolean isCreated = wardManager.newWard(wardMapper.map2Model(newWard));
         if (!isCreated) {
             throw new OHAPIException(new OHExceptionMessage(null, "Ward is not created!", OHSeverityLevel.ERROR));
         }
@@ -126,7 +126,7 @@ public class WardController {
     @PutMapping(value = "/wards", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateWard(@RequestBody WardDTO updateWard) throws OHServiceException {
         logger.info("Update ward with code: " + updateWard.getCode());
-        boolean isUpdated = wardManager.updateWard(mapper.map2Model(updateWard));
+        boolean isUpdated = wardManager.updateWard(wardMapper.map2Model(updateWard));
         if (!isUpdated) {
             throw new OHAPIException(new OHExceptionMessage(null, "Ward is not updated!", OHSeverityLevel.ERROR));
         }
@@ -144,7 +144,7 @@ public class WardController {
     @DeleteMapping(value = "/wards", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity deleteWard(@RequestBody WardDTO wardToDelete) throws OHServiceException {
         logger.info("Delete Ward with code: " + wardToDelete.getCode());
-        boolean isDeleted = wardManager.deleteWard(mapper.map2Model(wardToDelete));
+        boolean isDeleted = wardManager.deleteWard(wardMapper.map2Model(wardToDelete));
         if (!isDeleted) {
             throw new OHAPIException(new OHExceptionMessage(null, "Wards is not deleted!", OHSeverityLevel.ERROR));
         }

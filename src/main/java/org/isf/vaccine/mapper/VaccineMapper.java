@@ -3,6 +3,7 @@ package org.isf.vaccine.mapper;
 import org.isf.shared.GenericMapper;
 import org.isf.vaccine.dto.VaccineDTO;
 import org.isf.vaccine.model.Vaccine;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
